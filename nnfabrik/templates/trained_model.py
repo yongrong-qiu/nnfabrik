@@ -235,6 +235,10 @@ class TrainedModelBase(dj.Computed):
 
         # load everything
         dataloaders, model, trainer = self.load_model(key, include_trainer=True, include_state_dict=False, seed=seed)
+        
+        # get the core for transfer learning
+        if (self.trainer_table & key).fetch("trainer_config")[0]["detach_core"]==True:
+            model.load_state_dict(torch.load((self.trainer_table & key).fetch("trainer_config")[0]["core_state_dict"]), strict=False)
 
         # define callback with pinging
         def call_back(**kwargs):
